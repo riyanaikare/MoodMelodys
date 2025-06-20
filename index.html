@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MoodMelody</title>
+  
+  <!-- Google Fonts: Fredoka One with Bold weight -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@700&display=swap" rel="stylesheet" />
+  
+  <style>
+    body {
+      background-color: #E75480;
+      font-family: 'Fredoka One', cursive, sans-serif;
+      font-weight: 700;
+      color: #FCC1CC;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;      /* center vertically */
+      min-height: 100vh;            /* full viewport height */
+      padding: 40px;
+      font-size: 1.5rem;            /* bigger base font size */
+      text-align: center;           /* center text */
+      margin: 0;                    /* remove default margin */
+    }
+
+    h1 {
+      font-size: 4rem;              /* bigger title */
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    select, button {
+      font-size: 1.8rem;            /* bigger inputs */
+      padding: 15px 25px;
+      margin: 15px;
+      border-radius: 12px;
+      border: 2px solid #FCC1CC;
+      background-color: transparent;
+      font-family: 'Fredoka One', cursive, sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      color: #FCC1CC;               /* dropdown text color */
+      appearance: none;             /* remove default arrow */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      text-align-last: center;      /* center selected option */
+    }
+
+    select option {
+      color: #FCC1CC;               /* dropdown options text color */
+      background-color: #E75480;    /* options background same as page */
+    }
+
+    #result {
+      margin-top: 40px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+
+    a {
+      color: #fff;
+      text-decoration: underline;
+      font-weight: 700;
+      font-size: 1.8rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>MoodMelody</h1>
+
+  <label for="mood">Select Mood:</label>
+  <select id="mood">
+    <option value="">--Choose a Mood--</option>
+  </select>
+
+  <label for="genre">Select Genre:</label>
+  <select id="genre">
+    <option value="">--Choose a Genre--</option>
+  </select>
+
+  <button onclick="getSong()">Get Your Recommended Song</button>
+
+  <div id="result"></div>
+
+  <script>
+    const musicDB = {
+    "Happy": {
+        "Pop": [
+            "That’s So True: Gracie Abrams",
+            "Revolving Door: Tate McRae",
+            "I Can Do It With a Broken Heart: Taylor Swift",
+            "Hot N Cold: Katy Perry",
+            "She Calls Me Back: Noah Kahan (ft. Kacey Musgraves)",
+            "Riptide: Vance Joy",
+            "Too Sweet: Hozier",
+            "Half Your Love: Bahamas",
+            "All We Ever Knew: The Head and the Heart",
+            "Life’s What You Make It: Talk Talk",
+            "APT.: Bruno Mars and Rosé",
+            "Uptown Funk: Mark Ronson (ft. Bruno Mars)",
+            "Hips Don’t Lie: Shakira (ft. Wyclef Jean)",
+            "Cheap Thrills: Sia (ft. Sean Paul)",
+            "Levitating: Dua Lipa",
+            "Locked Out of Heaven: Bruno Mars",
+            "Shake It Off: Taylor Swift",
+            "Don’t Stop Believin’: Journey",
+            "Dancing Queen: ABBA",
+            "Here Comes the Sun: The Beatles",
+            "Still Into You: Paramore",
+            "Unbelievers: Vampire Weekend",
+            "Sit Next To Me: Foster the People",
+            "Yeah Boy: Kelsea Ballerini",
+            "Life is a Highway: Rascal Flatts",
+            "Our Song: Taylor Swift",
+            "Mine: Taylor Swift",
+            "Ours: Taylor Swift",
+            "Stay Stay Stay: Taylor Swift",
+            "You Need to Calm Down: Taylor Swift",
+            "The Man: Taylor Swift"
+        ],
+        "Hip-Hop": [
+            "Summertime: DJ Jazzy Jeff & The Fresh Prince",
+            "No Problem: Chance the Rapper (ft. Lil Wayne & 2 Chainz)",
+            "Can’t Hold Us: Macklemore & Ryan Lewis (ft. Ray Dalton)",
+            "Say So: Doja Cat",
+            "Bounce Back: Big Sean",
+            "Am I Wrong: Anderson .Paak (ft. ScHoolboy Q)"
+        ],
+        "Country": [
+            "Man! I Feel Like a Woman!: Shania Twain",
+            "9 to 5: Dolly Parton",
+            "Kick the Dust Up: Luke Bryan",
+            "Peter Pan: Kelsea Ballerini",
+            "Vacation: Thomas Rhett",
+            "Honey Bee: Blake Shelton",
+            "Friends in Low Places: Garth Brooks"
+        ],
+        "Rock": [
+            "Don’t Stop Me Now: Queen",
+            "Any Way You Want It: Journey",
+            "American Girl: Tom Petty and the Heartbreakers",
+            "All the Small Things: Blink-182",
+            "All Star: Smash Mouth",
+            "Ain’t It Fun: Paramore",
+            "The Sound: The 1975"
+        ],
+        "Rap": [
+            "Gettin’ Jiggy Wit It: Will Smith",
+            "Push It: Salt-N-Pepa",
+            "Feels Like Summer: Childish Gambino",
+            "Say So: Doja Cat",
+            "All I Do Is Win: DJ Khaled (ft. T-Pain, Ludacris, Snoop Dogg & Rick Ross)",
+            "Good Feeling: Flo Rida"
+        ],
+    },
+
+    "Sad": {
+        "Pop": [
+            "I miss you, I’m sorry: Gracie Abrams",
+            "Where do we go now?: Gracie Abrams",
+            "dying on the inside: Nessa Barrett",
+            "mad woman: Taylor Swift",
+            "Family Line: Conan Gray",
+            "making the bed: Olivia Rodrigo",
+            "Heal: Tom Odell",
+            "Chemtrails Over the Country Club: Lana Del Rey",
+            "Hello: Adele",
+            "Stay: Rihanna (ft. Mikky Ekko)",
+            "Nostalgia: Tate McRae",
+            "Six Feet Under: Billie Eilish"
+        ],
+        "Hip-Hop": [
+            "Lucid Dreams: Juice WRLD",
+            "Sing About Me, I’m Dying of Thirst: Kendrick Lamar",
+            "Let You Down: NF",
+            "Jocelyn Flores: XXXTENTACION",
+            "Cleaning Out My Closet: Eminem",
+            "1-800-273-8255: Logic (ft. Alessia Cara & Khalid)",
+            "So Many Tears: 2Pac",
+            "Love Yourz: J. Cole",
+            "Redbone: Childish Gambino",
+            "I Fall Apart: Post Malone",
+            "Waves: Joey Bada$$",
+            "Call Out My Name: The Weeknd",
+            "Numbers on the Boards: Pusha T"
+        ],
+        "Country": [
+            "He Stopped Loving Her Today: George Jones",
+            "Hurt: Johnny Cash",
+            "Crazy: Patsy Cline",
+            "Tennessee Whiskey: Chris Stapleton",
+            "Temporary Home: Carrie Underwood",
+            "Better Together: Luke Combs",
+            "Austin: Blake Shelton",
+            "Springsteen: Eric Church",
+            "What Hurts the Most: Rascal Flatts",
+            "Whiskey Lullaby: Brad Paisley (ft. Alison Krauss)"
+        ],
+        "Rock": [
+            "Something in the Way: Nirvana",
+            "Creep: Radiohead",
+            "Yesterday: The Beatles",
+            "Wish You Were Here: Pink Floyd",
+            "Fix You: Coldplay",
+            "I Need My Girl: The National",
+            "I Will Follow You Into the Dark: Death Cab for Cutie"
+        ],
+        "Rap": [
+            "Marvin’s Room: Drake",
+            "Come Back to Earth: Mac Miller",
+            "Stan: Eminem (ft. Dido)",
+            "Heartbeat: Childish Gambino",
+            "Stop Trying to be God: Travis Scott (ft. Kid Cudi, James Blake & Stevie Wonder)",
+            "LSD: ASAP Rocky",
+            "Wishing Well: Juice WRLD",
+            "2009: Mac Miller"
+        ],
+    },
+
+    "Angry": {
+        "Pop": [
+            "Since U Been Gone: Kelly Clarkson",
+            "So What: P!nk",
+            "Bad Romance: Lady Gaga",
+            "Therefore I Am: Billie Eilish",
+            "Don’t Blame Me: Taylor Swift",
+            "New Rules: Dua Lipa",
+            "Look What You Made Me Do: Taylor Swift",
+            "Nightmare: Halsey",
+            "Better Than Revenge: Taylor Swift",
+            "Wrecking Ball: Miley Cyrus",
+            "I Did Something Bad: Taylor Swift"
+        ],
+        "Hip-Hop": [
+            "The Way I Am: Eminem",
+            "Party Up (Up in Here): DMX",
+            "Fight the Power: Public Enemy",
+            "DNA.: Kendrick Lamar",
+            "Fire Squad: J. Cole",
+            "X Gon’ Give It To Ya: DMX"
+        ],
+        "Country": [
+            "Mama Tried: Merle Haggard",
+            "Gunpowder & Lead: Miranda Lambert",AdoredEvergreenErrors
+            "Before He Cheats: Carrie Underwood",
+            "Smoke a Little Smoke: Brantley Gilbert",
+            "Follow Your Arrow: Kacey Musgraves",
+            "Redneck Woman: Gretchen Wilson",
+            "Hicktown: Jason Aldean",
+            "Some Beach: Blake Shelton"
+        ],
+        "Rock": [
+            "Territorial Pissings: Nirvana",
+            "Killing in the Name: Rage Against the Machine",
+            "Chop Suey!: System Of A Down",
+            "One Step Closer: Linkin Park",
+            "I Hate Everything About You: Three Days Grace",
+            "Ignorance: Paramore",
+            "Popular Monster: Falling In Reverse",
+            "Going Under: Evanescence",
+            "Throne: Bring Me The Horizon",
+            "Out of the Black: Royal Blood",
+            "Amsterdam: Nothing But Thieves",AdoredEvergreenErrors
+            "My House: PVRIS"
+        ],
+        "Rap": [
+            "The Way I Am: Eminem",
+            "Straight Outta Compton: N.W.A",
+            "Hit ‘Em Up: 2Pac (ft. Outlawz)",
+            "Devil’s Work: Joyner Lucas",
+            "Legend Has It: Run the Jewels",
+            "SICKO MODE: Travis Scott (ft. Drake)",
+            "Ultimate: Denzel Curry",
+            "Catch Me Outside: Ski Mask the Slump God",
+            "Worldwide Choppers: Tech N9ne (ft. Ceza, Busta Rhymes, Yelawolf, Twista, Art Official, U$O, & JL B.Hood)",
+            "Look At Me!: XXXTENTACION",
+            "Fire Squad: J. Cole"
+        ],
+    },
+
+    "Romantic": {
+        "Pop": [AdoredEvergreenErrors
+            "Risk: Gracie Abrams",
+            "Speechless: Dan + Shay",
+            "Close To You: Gracie Abrams",
+            "All of Me: John Legend",
+            "Adore You: Harry Styles",
+            "Into You: Ariana Grande",
+            "Young And Beautiful: Lana Del Rey",
+            "Lover: Taylor Swift",
+            "Enchanted: Taylor Swift"
+        ],
+        "Hip-Hop": [
+            "Best I Ever Had: Drake",
+            "21 Questions: 50 Cent (ft. Nate Dogg)",
+            "Love: Kendrick Lamar (ft. Zacari)",
+            "You Got Me: The Roots (ft. Erykah Badu)",
+            "Take Care: Drake (ft. Rihanna)",
+            "Exchange: Bryson Tiller",
+            "Poetic Justice: Kendrick Lamar (ft. Drake)"
+        ],
+        "Country": [
+            "Forever After All: Luke Combs",
+            "You’re Still the One: Shania Twain",
+            "I Don’t Dance: Lee Brice",
+            "H.O.L.Y.: Florida Georgia Line",
+            "Amazed: Lonestar",
+            "Bless the Broken Road: Rascal Flatts",
+            "Love Story: Taylor Swift",
+            "Begin Again: Taylor Swift",
+            "Tim McGraw: Taylor Swift"
+        ],
+        "Rock": [
+            "I Don’t Want to Miss a Thing: Aerosmith",
+            "With or Without You: U2",
+            "Yellow: Coldplay",
+            "Iris: Goo Goo Dolls",
+            "You’re My Best Friend: Queen",
+            "Heaven: Bryan Adams"
+        ],
+        "Rap": [
+            "I Need Love: LL Cool J",
+            "See You Again: Wiz Khalifa (ft. Charlie Puth)",
+            "Beautiful: Snoop Dogg (ft. Pharrell Williams & Charlie Wilson)",
+            "You Got Me: The Roots (ft. Erykah Badu)",
+            "Love Galore: SZA (ft. Travis Scott)",
+            "Close Friends: Lil Baby",
+            "What You Know Bout Me: T.I. (ft. Keri Hilson)"
+        ],
+    },
+
+    "Calm": {
+        "Pop": [
+            "lacy: Olivia Rodrigo",
+            "everything i wanted: Billie Eilish",
+            "Let the Light In: Harry Styles",
+            "invisible string: Taylor Swift",
+            "Before You Go: Lewis Capaldi",
+            "Where’s My Love: SYML"
+        ],
+        "Hip-Hop": [
+            "Objects in the Mirror: Mac Miller",
+            "Pride.: Kendrick Lamar",
+            "Jazz: Mick Jenkins (ft. Noname)",
+            "Jungle: Andre 3000",
+            "Solo: Frank Ocean",
+            "Free: J. Cole",
+            "Phoenix: A$AP Rocky",
+            "Paper Trail$: Joey Bada$$"
+        ],
+        "Country": [
+            "Coat of Many Colors: Dolly Parton",
+            "Blue Eyes Crying in the Rain: Willie Nelson",
+            "Rainbow: Kacey Musgraves",
+            "Starting Over: Chris Stapleton",
+            "Sand in my Boots: Morgan Wallen",
+            "Something in the Orange: Zach Bryan",
+            "The Rest of Our Life: Tim McGraw & Faith Hill",
+            "This Is It: Scotty McCreery"
+        ],
+        "Rock": [
+            "Blackbird: The Beatles",
+            "Landslide: Fleetwood Mac",
+            "Desperado: Eagles",
+            "The Rain Song: Led Zeppelin",
+            "Sparks: Coldplay",
+            "Somewhere Only We Know: Keane"
+        ],
+        "Rap": [
+            "Foldin Clothes: J. Cole",
+            "Come Back to Earth: Mac Miller",
+            "All For Us: Labyrinth, Zendaya",
+            "If You Want Love: NF",
+            "Garden Shed: Tyler, The Creator (ft. Estelle)",
+            "Love is Only a Feeling: Joey Bada$$"
+        ],
+    },
+
+    "Anxious": {
+        "Pop": [
+            "21: Gracie Abrams",
+            "Male Fantasy: Billie Eilish",
+            "Where do we go now?: Gracie Abrams",
+            "everything i wanted: Billie Eilish",
+            "logical: Olivia Rodrigo",
+            "Liability: Lorde",
+            "The Archer: Taylor Swift",
+            "this is me trying: Taylor Swift",
+            "I Always Wanna Die: The 1975"
+        ],
+        "Hip-Hop": [
+            "U: Kendrick Lamar",
+            "paralyzed: NF",
+            "anziety: Logic",
+            "God Speed: Frank Ocean",
+            "Grief: Earl Sweatshirt",
+            "IFHY: Tyler, The Creator (ft. Pharrell Williams)",
+            "Switch: 6lack",
+            "Dr. Whoever: Joey Bada$$",
+            "Weight: Mick Jenkins"
+        ],
+        "Country": [
+            "happy & sad: Kacey Musgraves",
+            "Tin Man: Miranda Lambert",
+            "I wish I was: The Brothers Osborne",
+            "You’re Not Sorry: Taylor Swift",
+            "tolerate it: Taylor Swift",
+            "Down from Dover: Dolly Parton"
+        ],
+        "Rock": [
+            "Paranoid Android: Radiohead",
+            "Something in the Way: Nirvana",
+            "Breaking the Habit: Linkin Park",
+            "I Always Wanna Die: The 1975",
+            "I Know the End: Phoebe Bridgers",
+            "Somebody Told Me: The Killers"
+        ],
+        "Rap": [
+            "So Many Tears: 2Pac",
+            "Mind Playing Tricks On Me: Geto Boys",
+            "Grief: Earl Sweatshirt",
+            "Nightmares: Logic",
+            "Keep Livin’: Logic",
+            "Maniac: Kid Cudi"
+        ],
+    },
+
+    "Excited": {
+        "Pop": [
+            "Roar: Katy Perry",
+            "Raise Your Glass: P!nk",
+            "This is What You Came For: Calvin Harris (ft. Rihanna)",
+            "No Tears Left to Cry: Ariana Grande",
+            "Domino: Jessie J",
+            "Waka Waka (This Time for Africa): Shakira (ft. Freshlyground)",
+            "22: Taylor Swift"
+        ],
+        "Hip-Hop": [
+            "Started From the Bottom: Drake",
+            "Super Bass: Nicki Minaj",
+            "Fight Night: Migos",
+            "I Like It: Cardi B, Bad Bunny & J Balvin",
+            "Panini: Lil Nas X",
+            "Humble: Kendrick Lamar"
+        ],
+        "Country": [
+            "Country Girl (Shake It for Me): Luke Bryan",
+            "Die a Happy Man: Thomas Rhett",
+            "Days Go By: Keith Urban",
+            "Cruise: Florida Georgia Line",
+            "Drunk on a Plane: Dierks Bentley",
+            "Head Over Heels: Little Big Town"
+        ],
+        "Rap": [
+            "Bodak Yellow: Cardi B",
+            "G.O.M.D.: J. Cole",
+            "Congratulations: Post Malone (ft. Quavo)",
+            "Mask Off: Future",
+            "A Milli: Lil Wayne",
+            "44 More: Logic",
+            "Bounce Back: Big Sean"
+        ],
+        "Rock": [
+            "Mr. Brightside: The Killers",
+            "Basket Case: Green Day",
+            "Uprising: Muse",
+            "Seven Nation Army: The White Stripes",
+            "Welcome to The Black Parade: My Chemical Romance"
+        ],
+    }
+ };
+
+    const moodSelect = document.getElementById("mood");
+    const genreSelect = document.getElementById("genre");
+    const resultDiv = document.getElementById("result");
+
+    // Populate mood dropdown
+    for (let mood in musicDB) {
+      let opt = document.createElement("option");
+      opt.value = mood;
+      opt.textContent = mood;
+      moodSelect.appendChild(opt);
+    }
+
+    // Populate genre dropdown based on mood selection
+    moodSelect.addEventListener("change", function() {
+      genreSelect.innerHTML = '<option value="">--Choose a Genre--</option>';
+      let selectedMood = moodSelect.value;
+      if (selectedMood) {
+        for (let genre in musicDB[selectedMood]) {
+          let opt = document.createElement("option");
+          opt.value = genre;
+          opt.textContent = genre;
+          genreSelect.appendChild(opt);
+        }
+      }
+    });
+
+    function getSong() {
+      resultDiv.innerHTML = "";
+      const mood = moodSelect.value;
+      const genre = genreSelect.value;
+      if (!mood || !genre) {
+        resultDiv.textContent = "Please select both a mood and a genre.";
+        return;
+      }
+      const songs = musicDB[mood][genre];
+      if (!songs || songs.length === 0) {
+        resultDiv.textContent = "No songs found for this selection.";
+        return;
+      }
+      const song = songs[Math.floor(Math.random() * songs.length)];
+      // Since song is a string, just display it directly
+      resultDiv.innerHTML = `<p>🎶 Your recommended song is:<br><strong>${song}</strong></p>`;
+    }
+  </script>
+</body>
+</html>
